@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using DAL.Microservices;
+using DAL.Helpers;
+
 namespace DAL.CQRS.Reports.Queries
 {
     public class GetTotalProjectWorkingHoursBySupervisorAsync :IQuery
@@ -12,10 +15,10 @@ namespace DAL.CQRS.Reports.Queries
         private employeetimesheetdbContext _appDbContext;
 
         private string _supervisorId;
-        public GetTotalProjectWorkingHoursBySupervisorAsync(string _supervisorId)
+        public GetTotalProjectWorkingHoursBySupervisorAsync(string supervisorId)
         {
             _appDbContext = new employeetimesheetdbContext(MyDbContextOptions.optionsBuilder.Options);
-            this._supervisorId = _supervisorId;
+            _supervisorId = supervisorId;
         }
 
         public async Task<dynamic> executeAsync()
@@ -33,6 +36,9 @@ namespace DAL.CQRS.Reports.Queries
                             ProjectWorkingHours = q.Sum(c => c.HoursWorked)
                         };
             return await query.OrderBy(c => c.ProjectWorkingHours).ToListAsync();
+
+
         }
+
     }
 }

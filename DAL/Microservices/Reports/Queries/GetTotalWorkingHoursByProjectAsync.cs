@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper.Configuration;
-using DAL.Models;
 
 namespace DAL.CQRS.Reports
 {

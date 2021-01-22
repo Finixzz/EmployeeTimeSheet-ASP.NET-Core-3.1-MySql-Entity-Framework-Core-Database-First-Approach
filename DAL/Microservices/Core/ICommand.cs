@@ -1,15 +1,12 @@
-﻿using System;
+﻿using DAL.Microservices;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DAL.CQRS
 {
-
-    public interface IQuery
+    public interface ICommand : IAction
     {
-        Task<dynamic> executeAsync();
     }
-
-   
 }

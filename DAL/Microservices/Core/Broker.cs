@@ -1,4 +1,6 @@
-﻿using DAL.Models;
+﻿using DAL.Microservices;
+using DAL.Microservices.Core;
+using DAL.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,9 +10,9 @@ namespace DAL.CQRS.Brokers.ReportBroker
 {
     public class Broker : IBroker
     {
-        public async Task<dynamic> sendMessage(IQuery query)
+        public async Task<dynamic> sendMessage(IAction action)
         {
-            return await query.executeAsync();
+            return await action.executeAsync();
         }
     }
 }
