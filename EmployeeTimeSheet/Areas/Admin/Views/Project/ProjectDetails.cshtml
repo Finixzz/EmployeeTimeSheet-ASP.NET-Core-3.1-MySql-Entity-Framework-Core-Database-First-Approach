@@ -1,0 +1,70 @@
+﻿@model DAL.Models.Project
+@inject DAL.Repositories.IProjectSQLRepository projectRepository;
+@inject DAL.Repositories.IActivitySQLRepository activityRepository;
+@{
+    ViewData["Title"] = "ProjectDetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var project = await projectRepository.GetByIdAsync(Model.ProjectId);
+    var projectActivities = await activityRepository.GetAllByProjectIdAsync(Model.ProjectId);
+}
+
+
+<form style="margin:2% 2%;">
+    <h3 class="text-center text-info">Project details</h3>
+    <br />
+    <div class="form-group row">
+        <label for="colFormLabelLg" class="col-sm-2 col-form-label col-form-label-lg">Project name</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control form-control-lg" id="colFormLabelLg" placeholder="col-form-label-lg" value="@project.Name" disabled>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label for="colFormLabelLg" class="col-sm-2 col-form-label col-form-label-lg">Project description</label>
+        <div class="col-sm-10">
+            <input disabled type="text" class="form-control form-control-lg" id="colFormLabelLg" placeholder="col-form-label-lg" value="@project.Description">
+        </div>
+    </div>
+</form>
+<div style="margin-bottom: 2%">
+    <a asp-area="admin" asp-action="index" asp-controller="project" class="btn btn-secondary btn-md">Back</a>
+</div>
+
+@if (projectActivities.Count() != 0)
+{
+
+    <h3 class="text-center text-info" style="margin:2% 2%;">Project activities</h3>
+    <div class="container">
+        <div class="row" style="display:flex; margin:0 auto; justify-content:center">
+            @for (int i = 0; i < projectActivities.Count(); i++)
+            {
+                <div class="col-sm-3" style="margin: 1% 1%">
+                    <div class="card " style="width: 18rem;">
+                        <div class="card-header text-white bg-info mb-3 ">@projectActivities.ElementAt(i).Name</div>
+                        <div class="card-body">
+                            <p class="card-text">@projectActivities.ElementAt(i).Description</p>
+
+                        </div>
+
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+
+<style>
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+        .row > div[class*='col-'] {
+            display: flex;
+        }
+</style>
+
+
+

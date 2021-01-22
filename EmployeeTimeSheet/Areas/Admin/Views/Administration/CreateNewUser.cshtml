@@ -1,0 +1,72 @@
+﻿@model EmployeeTimeSheet.ViewModels.CreateUserViewModel;
+@inject DAL.Repositories.IUserSQLRepository userRepository;
+
+@{
+    ViewData["Title"] = "CreateNewUser";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    IEnumerable<DAL.Models.Aspnetroles> userRoles = await userRepository.GetAllRolesAsync();
+
+    IEnumerable<DAL.DTOS.UserViewModelDTO> supervisors = await userRepository.GetAllSupervisorsAsync();
+
+}
+
+
+<div id="login">
+    <h3 class="text-center text-white pt-5">Create new user</h3>
+    <div class="container">
+        <div id="login-row" class="row justify-content-center align-items-center">
+            <div id="login-column" class="col-md-6">
+                <div id="login-box" class="col-md-12">
+                    <form id="login-form" class="form" asp-area="admin" asp-action="createnewuser" asp-controller="administration" method="post">
+                        <h3 class="text-center text-info">Create new user</h3>
+                        <div class="form-group">
+                            <label asp-for="UserName" class="text-info">Username:</label><br>
+                            <input asp-for="UserName" type="text" class="form-control" autocomplete="off">
+                            <span asp-validation-for="UserName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="RoleName" class="text-info">Role</label>
+                            <select asp-for="RoleName" class="form-control">
+                                <option value="">Please assign role to user</option>
+                                @for (int i = 0; i < userRoles.Count(); i++)
+                                {
+                                    <option value=@userRoles.ElementAt(i).Name>@userRoles.ElementAt(i).Name</option>
+                                }
+
+                            </select>
+                            <span asp-validation-for="RoleName" class="text-danger"></span>
+                        </div>
+
+                        @if (supervisors.Count() != 0)
+                        {
+                            <div class="form-group">
+                                <label asp-for="SupervisedBy" class="text-info">Supervisor</label>
+                                <select asp-for="SupervisedBy" class="form-control">
+                                    <option value="">Please assign supervisor to user (optional)</option>
+                                    @for (int i = 0; i < supervisors.Count(); i++)
+                                    {
+                                        <option value=@supervisors.ElementAt(i).Id>@supervisors.ElementAt(i).Username</option>
+                                    }
+
+                                </select>
+                            </div>
+                        }
+                        <button type="submit" class="btn btn-info btn-md">Create user</button>
+                        <a asp-area="admin" asp-action="users" asp-controller="administration" class="btn btn-secondary btn-md">Back</a>
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@section scripts{
+    @await Html.PartialAsync("_ValidationScriptsPartial.cshtml");
+}
+
+
+

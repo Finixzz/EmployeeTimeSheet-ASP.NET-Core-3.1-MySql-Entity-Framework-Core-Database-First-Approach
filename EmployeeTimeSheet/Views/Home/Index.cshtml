@@ -1,0 +1,340 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@model EmployeeTimeSheet.ViewModels.LoginViewModel;
+@inject UserManager<DAL.Models.Aspnetusers> userManager;
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var userId = userManager.GetUserId(User);
+    var userRole = userManager.GetRolesAsync(await userManager.GetUserAsync(User));
+}
+@if (User.IsInRole("Admin"))
+{
+    <input hidden id="user-id" type="text" value="@userId" data-role-name="Admin" />
+
+}
+else if (User.IsInRole("Supervisor"))
+{
+    <input hidden id="user-id" type="text" value="@userId" data-role-name="Supervisor" />
+
+}
+else
+{
+    <input hidden id="user-id" type="text" value="@userId" data-role-name="Supervisor" />
+
+}
+@if (!User.Identity.IsAuthenticated)
+{
+    <body>
+        <div id="login">
+            <h3 class="text-center text-white pt-5">Login form</h3>
+            <div class="container">
+                <div id="login-row" class="row justify-content-center align-items-center">
+                    <div id="login-column" class="col-md-6">
+                        <div id="login-box" class="col-md-12">
+                            <form id="login-form" class="form" asp-action="index" asp-controller="home" method="post">
+                                <h3 class="text-center text-info">Login</h3>
+
+
+                                <div class="form-group">
+                                    <label asp-for="Username" class="text-info">Username</label><br>
+                                    <input asp-for="Username" type="text" class="form-control" autocomplete="off">
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Password" class="text-info">Password:</label><br>
+                                    <input asp-for="Password" type="password" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <div class="checkbox">
+                                        <label asp-for="RememberMe">
+                                            <input asp-for="RememberMe" />
+                                            @Html.DisplayNameFor(m => m.RememberMe)
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-info btn-md">Login</button>
+                                <div asp-validation-summary="All" class="text-danger"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+}
+else if (User.IsInRole("Admin"))
+{
+    <div id="message">
+
+    </div>
+    <canvas id="pie-chart" width="800" height="450" style="margin:3% 3%"></canvas>
+
+
+    @section scripts{
+        @await Html.PartialAsync("_ValidationScriptsPartial.cshtml");
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+        <script>
+
+            var userId = $("#user-id").val();
+            var projectLabels = [];
+            var workingHours = [];
+            var colors = [];
+            getRanHex = () => {
+                let result = ["#"];
+                let hexRef = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+
+                for (let n = 0; n < 6; n++) {
+                    result.push(hexRef[Math.floor(Math.random() * 16)]);
+                }
+                return result.join('');
+
+            }
+
+            formatQueryResult = (result) => {
+                for (let i = 0; i < result.length; i++) {
+                    projectLabels.push(result[i].projectName);
+                    workingHours.push(result[i].totalWorkingHours);
+                    colors.push(getRanHex())
+
+                }
+                workingHours.push(0);
+                colors.push(getRanHex());
+            }
+
+            createMessageCard = () => {
+                return `
+                                                                                    <div id="messageCard" class="card" style="margin:2% 0;">
+                                                                                    <div class="card-body">
+                                                                                            <h2>Analytics is not currently available. Please wait until workers append their working hours
+                                                                                             for projects and activities.
+                                                                                            </h2>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                `;
+
+            }
+
+            $.ajax({
+                url: "/api/reports/admin/workingHoursByProjects",
+                method: 'GET',
+                success: (result) => {
+
+                    if (result.length == 0) {
+                        $("#message").append(createMessageCard());
+                    } else {
+                        $("#message").remove();
+                        formatQueryResult(result);
+
+                        new Chart(document.getElementById("pie-chart"), {
+                            type: 'pie',
+                            data: {
+                                labels: projectLabels,
+                                datasets: [{
+                                    backgroundColor: colors,
+                                    data: workingHours
+                                }]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: 'Working hours by project'
+                                }
+                            }
+                        });
+                    }
+
+
+                },
+                error: (error) => {
+                    console.log(error);
+                }
+            });
+
+
+        </script>
+    }
+
+}
+else if (User.IsInRole("Supervisor"))
+{
+    <div id="message">
+
+    </div>
+    <canvas id="pie-chart" width="800" height="450" style="margin:3% 3%"></canvas>
+
+
+    @section scripts{
+        @await Html.PartialAsync("_ValidationScriptsPartial.cshtml");
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+        <script>
+
+            var userId = $("#user-id").val();
+            var projectLabels = [];
+            var workingHours = [];
+            var colors = [];
+            getRanHex = () => {
+                let result = ["#"];
+                let hexRef = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+
+                for (let n = 0; n < 6; n++) {
+                    result.push(hexRef[Math.floor(Math.random() * 16)]);
+                }
+                return result.join('');
+
+            }
+
+            formatQueryResult = (result) => {
+                for (let i = 0; i < result.length; i++) {
+                    projectLabels.push(result[i].projectName);
+                    workingHours.push(result[i].totalWorkingHours);
+                    colors.push(getRanHex())
+
+                }
+                workingHours.push(0);
+                colors.push(getRanHex());
+            }
+
+            createMessageCard = () => {
+                return `
+                                                                                    <div id="messageCard" class="card" style="margin:2% 0;">
+                                                                                    <div class="card-body">
+                                                                                            <h2>Analytics is not currently available. Please wait until workers append their working hours
+                                                                                             for projects and activities.
+                                                                                            </h2>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                `;
+
+            }
+
+
+            $.ajax({
+                url: "/api/reports/supervisor/workingHoursByProjects?SupervisorId=" + userId,
+                method: 'GET',
+                success: (result) => {
+
+                    if (result.length == 0) {
+                        $("#message").append(createMessageCard());
+                    } else {
+                        $("#message").remove();
+                        formatQueryResult(result);
+
+                        new Chart(document.getElementById("pie-chart"), {
+                            type: 'pie',
+                            data: {
+                                labels: projectLabels,
+                                datasets: [{
+                                    backgroundColor: colors,
+                                    data: workingHours
+                                }]
+                            },
+                            options: {
+                                title: {
+                                    display: true,
+                                    text: 'Working hours by project'
+                                }
+                            }
+                        });
+                    }
+
+
+                },
+                error: (error) => {
+                    console.log(error);
+                }
+            });
+
+
+        </script>
+    }
+
+}
+else if (User.IsInRole("User"))
+{
+
+    <div id="message">
+        <div id="messageCard" class="card" style="margin:2% 0;">
+            <div class="card-body">
+                <h2>
+                    To manage working hours, click on <i>Manage, Working hours</i>
+                </h2>
+            </div>
+        </div>
+    </div>
+    <canvas id="bar-chart" width="800" height="450" style="margin:3% 3%"></canvas>
+    @section scripts{
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+        <script>
+            $("document").ready(() => {
+                var chartLabels = []; var chartData = []; var chartColors = [];
+                getRanHex = () => {
+                    let result = ["#"];
+                    let hexRef = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+
+                    for (let n = 0; n < 6; n++) {
+                        result.push(hexRef[Math.floor(Math.random() * 16)]);
+                    }
+                    return result.join('');
+
+                }
+
+                createChart = (labels, data, colors, label, text) => {
+
+                    new Chart(document.getElementById("bar-chart"), {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: label,
+                                    backgroundColor: colors,
+                                    data: data
+                                }
+                            ]
+                        },
+                        options: {
+                            legend: { display: false },
+                            title: {
+                                display: true,
+                                text: text
+                            }
+                        }
+                    });
+                }
+
+                formatQueryResultByDaysFilter = (result) => {
+                    for (let i = 0; i < result.length; i++) {
+
+
+                        chartLabels.push(new Date(result[i].date).toLocaleDateString('pt-PT'));
+                        chartData.push(result[i].projectWorkingHours);
+                        chartColors.push(getRanHex())
+
+                    }
+                    chartData.push(0);
+                    chartColors.push(getRanHex());
+                }
+                let APIurl = `/api/reports/admin/userWorkingHoursBy?UserId=${$("#user-id").val()}&DateFormatSelected=${"dd"}`;
+                console.log(APIurl);
+                $.ajax({
+                    url: APIurl,
+                    method: 'GET',
+                    success: (result) => {
+                        console.log(result);
+
+
+
+                        formatQueryResultByDaysFilter(result);
+                        createChart(chartLabels, chartData, chartColors, "Working Hours", "Project working hours by days")
+                    },
+                    error: (error) => {
+                        console.log(error);
+                    }
+                });
+            })
+        </script>
+    }
+}
+

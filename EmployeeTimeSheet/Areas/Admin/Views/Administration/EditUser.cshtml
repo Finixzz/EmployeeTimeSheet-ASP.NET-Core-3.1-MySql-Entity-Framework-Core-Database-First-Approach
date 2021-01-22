@@ -1,0 +1,141 @@
+﻿@model EmployeeTimeSheet.ViewModels.EditUserViewModel
+@inject DAL.Repositories.IUserSQLRepository userRepository;
+@{
+    ViewData["Title"] = "EditUser";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    IEnumerable<DAL.Models.Aspnetroles> userRoles = await userRepository.GetAllRolesAsync();
+
+    IEnumerable<DAL.DTOS.UserViewModelDTO> supervisors = await userRepository.GetAllSupervisorsAsync();
+
+    int index = -1;
+    for (int i = 0; i < supervisors.Count(); i++)
+    {
+        if (supervisors.ElementAt(i).Username == Model.SupervisedBy)
+        {
+            index = i;
+            break;
+        }
+    }
+
+
+}
+
+
+<body>
+    <div id="login">
+        <h3 class="text-center text-white pt-5">Edit user</h3>
+        <div class="container">
+            <div id="login-row" class="row justify-content-center align-items-center">
+                <div id="login-column" class="col-md-6">
+                    <div id="login-box" class="col-md-12">
+                        <form id="login-form" class="form" asp-area="admin" asp-action="edituser" asp-controller="administration" method="post">
+                            <h3 class="text-center text-info">Edit user</h3>
+                            <div class="form-group">
+                                <label asp-for="UserName" class="text-info">Username:</label><br>
+                                <input asp-for="UserName" type="text" class="form-control" autocomplete="off" value="@Model.UserName" readonly>
+                                <span asp-validation-for="UserName" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="RoleName" class="text-info">Role</label>
+                                <select asp-for="RoleName" class="form-control">
+
+                                    <option value="@Model.RoleName">@Model.RoleName</option>
+                                    @for (int i = 0; i < userRoles.Count(); i++)
+                                    {
+                                        if (userRoles.ElementAt(i).Name != Model.RoleName)
+                                        {
+                                            <option value=@userRoles.ElementAt(i).Name>@userRoles.ElementAt(i).Name</option>
+
+                                        }
+                                    }
+
+                                </select>
+                                <span asp-validation-for="RoleName" class="text-danger"></span>
+                            </div>
+
+                            @if (supervisors.Count() > 1)
+                            {
+
+                                <div class="form-group">
+                                    <label asp-for="SupervisedBy" class="text-info">Supervisor</label>
+                                    <select asp-for="SupervisedBy" class="form-control">
+                                        @if (Model.SupervisedBy != null)
+                                        {
+                                            <option value="@supervisors.ElementAt(index).Id">@supervisors.ElementAt(index).Username</option>
+                                            @for (int i = 0; i < supervisors.Count(); i++)
+                                            {
+                                                if (supervisors.ElementAt(i).Username != Model.SupervisedBy)
+                                                {
+                                                    <option value="@supervisors.ElementAt(i).Id">@supervisors.ElementAt(i).Username</option>
+
+                                                }
+
+                                            }
+
+                                            <option value="">Remove supervisor</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="">Please select user supervisor(optional)</option>
+                                            @for (int i = 0; i < supervisors.Count(); i++)
+                                            {
+                                                
+                                                    <option value="@supervisors.ElementAt(i).Id">@supervisors.ElementAt(i).Username</option>
+
+
+                                            }
+                                        }
+
+
+                                    </select>
+                                </div>
+                            }
+                            else if (Model.RoleName != "Supervisor")
+                            {
+                                <div class="form-group">
+                                    <label asp-for="SupervisedBy" class="text-info">Supervisor</label>
+                                    <select asp-for="SupervisedBy" class="form-control">
+                                        @if (Model.SupervisedBy == null)
+                                        {
+                                            <option value="">Please assign supervisor to user (optional)</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="">Please assign supervisor to user (optional)</option>
+                                            <option value="@Model.SupervisedBy">@Model.SupervisedBy</option>
+
+                                        }
+                                        @for (int i = 0; i < supervisors.Count(); i++)
+                                        {
+                                            if (supervisors.ElementAt(i).Username != Model.SupervisedBy)
+                                            {
+                                                <option value=@supervisors.ElementAt(i).Id>@supervisors.ElementAt(i).Username</option>
+
+                                            }
+
+                                        }
+
+                                    </select>
+                                </div>
+                            }
+                            <button type="submit" class="btn btn-info btn-md">Save changes</button>
+                            <a asp-area="admin" asp-action="users" asp-controller="administration" class="btn btn-secondary btn-md">Back</a>
+                            <input type="hidden" asp-for="@Model.Id" value="@Model.Id" />
+                            <div asp-validation-summary="All" class="text-danger"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+@section scripts{
+    @await Html.PartialAsync("_ValidationScriptsPartial.cshtml");
+}
+
+
+
+

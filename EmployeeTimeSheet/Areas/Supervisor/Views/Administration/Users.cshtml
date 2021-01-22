@@ -1,0 +1,88 @@
+﻿@model List<EmployeeTimeSheet.ViewModels.UserViewModel>;
+@{
+    ViewData["Title"] = "Users";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<a asp-area="supervisor" asp-action="createNewUser" asp-controller="administration" class="btn btn-info" style="width:100%; margin:2% 0; color:white;">Create new user</a>
+<br />
+@if (Model.Count() == 0)
+{
+    <div class="card" style="margin:2% 0;">
+        <div class="card-body">
+            <h2>Currenty you are not supervised for any of system users, to add one click button <i>Create new user</i> or contact system administrator.</h2>
+        </div>
+    </div>
+}
+else
+{
+
+    <table id="users-table" class="table">
+        <thead class="table-secondary">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">ID</th>
+                <th scope="col">Username</th>
+                <th scope="col">User role</th>
+                <th scope="col">Supervised by</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Count(); i++)
+            {
+                int rowNum = i + 1;
+                <tr>
+                    <th scope="row">@rowNum</th>
+                    <td>@Model.ElementAt(i).Id </td>
+                    <td>@Model.ElementAt(i).Username</td>
+                    <td>@Model.ElementAt(i).RoleName</td>
+                    @if (Model.ElementAt(i).SupervisedBy == null)
+                    {
+                        <td>X</td>
+                    }
+                    else
+                    {
+                        <td>@Model.ElementAt(i).SupervisedBy</td>
+                    }
+                    <td style="display:flex; justify-content:space-between;">
+
+                        <a class="btn btn-secondary" asp-area="supervisor" asp-action="UserDetails" asp-controller="administration" asp-route-id="@Model.ElementAt(i).Id">Details</a>
+                        <form id="deleteUser-form" asp-area="supervisor" asp-action="deleteUser" asp-controller="administration" asp-route-id="@Model.ElementAt(i).Id">
+                            <button id="submitBtn" type="submit" class="btn btn-danger" style="color:white;">Delete</button>
+                        </form>
+
+                    </td>
+                </tr>
+            }
+
+
+        </tbody>
+    </table>
+
+
+}
+
+
+@section scripts{
+
+
+    <script>
+        $("document").ready(function () {
+            $("#users-table").DataTable();
+
+            $("#submitBtn").click(function (e) {
+                e.preventDefault();
+                if (window.confirm("Are you sure you want to delete this user?")) {
+                    $("#deleteUser-form").submit();
+                }
+            });
+        })
+
+
+
+    </script>
+}
+
+
+

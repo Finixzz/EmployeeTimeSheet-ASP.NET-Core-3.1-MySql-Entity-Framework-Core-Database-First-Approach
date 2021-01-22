@@ -1,0 +1,331 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@inject DAL.Repositories.IProjectFacade projectFacade;
+@inject UserManager<DAL.Models.Aspnetusers> userManager;
+@{
+    ViewData["Title"] = "ProjectActivities";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var user = await userManager.GetUserAsync(User);
+    var projects = await projectFacade.GetAllSupervisedProjectsWithWorkingHoursAsync(user.Id);
+
+}
+
+
+<div id="message">
+</div>
+
+<div id="dragableSlicer" class="card" style="width: 18rem;" draggable="true">
+    <div id="dragableSlicerheader" class="card-header text-white bg-info mb-3 ">
+        Click & drag slicer<i class="fas fa-arrows-alt"></i>
+    </div>
+    <div class="card-body">
+        <p class="card-text">To successfully apply filters, project and date format must be selected!</p>
+    </div>
+    <hr />
+
+    <form id="filterForm" method="post">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item" style="display:flex; justify-content:space-between;">
+                <select id="selected-project" class="form-control">
+                    <option class="selected-project" value="">Select project</option>
+                    @for (int i = 0; i < Enumerable.Count(projects); i++)
+                    {
+                        <option value="@projects.ElementAt(i).ProjectId">@projects.ElementAt(i).Name</option>
+                    }
+                </select>
+            </li>
+            <li class="list-group-item" style="display:flex; justify-content:space-between;">
+
+                <select id="selected-format" class="form-control">
+                    <option value="">Select date format</option>
+                    <option value="dd">Days</option>
+                    <option value="ww">Weeks</option>
+                    <option value="mm">Months</option>
+                </select>
+            </li>
+
+        </ul>
+        <button id="updateReport" class="btn btn-info" style="margin:2% 2%; width:96%">Apply filters</button>
+    </form>
+</div>
+
+
+<div id="chart-area">
+    <canvas id="bar-chart" width="850" height="450" style="margin:3% 3%;"></canvas>
+</div>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+
+
+<script>
+    $("document").ready(function () {
+
+
+        var chartLabels = [];
+        var chartData = [];
+        var chartColors = [];
+        getRanHex = () => {
+            let result = ["#"];
+            let hexRef = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+
+            for (let n = 0; n < 6; n++) {
+                result.push(hexRef[Math.floor(Math.random() * 16)]);
+            }
+            return result.join('');
+
+        }
+
+        formatQueryResult = (result) => {
+            for (let i = 0; i < result.length; i++) {
+                chartLabels.push(result[i].projectName);
+                chartData.push(result[i].totalWorkingHours);
+                chartColors.push(getRanHex())
+
+            }
+            chartData.push(0);
+            chartColors.push(getRanHex());
+        }
+
+        createMessageCard = () => {
+            return `
+                <div id="messageCard" class="card" style="margin:2% 2%;">
+                <div class="card-body">
+                        <h2>Analytics is not currently available. Please wait until workers append their working hours
+                         for projects and activities.
+                        </h2>
+                    </div>
+                </div>
+            `;
+
+        }
+
+        createCanvas = () => {
+            return `
+                <canvas id="bar-chart" width="850" height="450" style="margin:3% 3%;" ></canvas>
+            `;
+        }
+
+        createChart = (labels, data, colors, label, text) => {
+
+            new Chart(document.getElementById("bar-chart"), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: label,
+                            backgroundColor: colors,
+                            data: data
+                        }
+                    ]
+                },
+                options: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: text
+                    }
+                }
+            });
+        }
+
+
+        $.ajax({
+            url: "/api/reports/supervisor/workingHoursByProjects",
+            method: 'GET',
+            success: (result) => {
+
+
+                if (result.length == 0) {
+                    $("#message").append(createMessageCard());
+                } else {
+                    $("#message").remove();
+                }
+
+
+                formatQueryResult(result);
+                createChart(chartLabels, chartData, chartColors, "Working hours", "Working hours by projects");
+
+
+
+            },
+            error: (error) => {
+                console.log(error);
+            }
+        });
+    });
+
+
+
+
+    formatQueryResultByDaysFilter = (result) => {
+        for (let i = 0; i < result.length; i++) {
+
+
+            chartLabels.push(new Date(result[i].date).toLocaleDateString('pt-PT'));
+            chartData.push(result[i].projectWorkingHours);
+            chartColors.push(getRanHex())
+
+        }
+        chartData.push(0);
+        chartColors.push(getRanHex());
+    }
+
+    function GetMonthName(monthNumber) {
+        var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        return months[monthNumber - 1];
+    }
+    formatQueryResultByMonthsFilter = (result) => {
+        for (let i = 0; i < result.length; i++) {
+
+
+            chartLabels.push(GetMonthName(result[i].month));
+            chartData.push(result[i].projectWorkingHours);
+            chartColors.push(getRanHex())
+
+        }
+        chartData.push(0);
+        chartColors.push(getRanHex());
+    }
+
+    formatQueryResultByWeeksFilter = (result) => {
+        for (let i = 0; i < result.length; i++) {
+            let label = "";
+            if (result[i].weekNumber == 1) {
+                label = "1st week of " + GetMonthName(result[i].month);
+            } else if (result[i].weekNumber == 2) {
+                label = "2nd week of " + GetMonthName(result[i].month);
+
+            } else if (result[i].weekNumber == 3) {
+                label = "3rd week of " + GetMonthName(result[i].month);
+
+            } else {
+                label = "4th week of " + GetMonthName(result[i].month);
+
+            }
+            chartLabels.push(label);
+
+            chartData.push(result[i].totalWorkingHours);
+            chartColors.push(getRanHex())
+
+        }
+        chartData.push(0);
+        chartColors.push(getRanHex());
+    }
+    $("#filterForm").submit(function (e) {
+        e.preventDefault();
+        var slicer = {
+            projectId: Number.isNaN(parseInt($("#selected-project").val())) ? null : parseInt($("#selected-project").val()),
+            dateFormatSelected: $("#selected-format").val()
+        };
+
+        if (slicer.projectId != null && slicer.dateFormatSelected.length != 0) {
+            let APIurl = `/api/reports/supervisor/workingHoursBy?ProjectId=${slicer.projectId}&DateFormatSelected=${slicer.dateFormatSelected}`;
+            $.ajax({
+                url: APIurl,
+                method: 'GET',
+                success: (result) => {
+                    console.log(result);
+
+                    if (result.length == 0) {
+                        $("#message").append(createMessageCard());
+                    } else {
+                        $("#message").remove();
+                    }
+                    chartLabels = []; chartData = []; chartColors = [];
+                    $("#bar-chart").remove();
+                    $("#chart-area").append(createCanvas());
+
+
+
+                    if (slicer.dateFormatSelected == "dd") {
+                        formatQueryResultByDaysFilter(result);
+                        createChart(chartLabels, chartData, chartColors, "Working Hours", "Project working hours by days")
+                    } else if (slicer.dateFormatSelected == "mm") {
+                        formatQueryResultByMonthsFilter(result);
+                        createChart(chartLabels, chartData, chartColors, "Working Hours", "Project working hours by months")
+
+                    } else if (slicer.dateFormatSelected == "ww") {
+                        formatQueryResultByWeeksFilter(result);
+                        createChart(chartLabels, chartData, chartColors, "Working Hours", "Project working hours by month weeks")
+
+                    }
+
+
+                },
+                error: (error) => {
+                    console.log(error);
+                }
+            });
+
+        }
+
+        console.log(slicer);
+    });
+
+
+
+
+
+
+
+
+
+
+    dragElement(document.getElementById("dragableSlicer"));
+
+    function dragElement(elmnt) {
+        var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        if (document.getElementById(elmnt.id + "header")) {
+            // if present, the header is where you move the DIV from:
+            document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+        } else {
+            // otherwise, move the DIV from anywhere inside the DIV:
+            elmnt.onmousedown = dragMouseDown;
+        }
+
+        function dragMouseDown(e) {
+            e = e || window.event;
+            e.preventDefault();
+            // get the mouse cursor position at startup:
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            // call a function whenever the cursor moves:
+            document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(e) {
+            e = e || window.event;
+            e.preventDefault();
+            // calculate the new cursor position:
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            // set the element's new position:
+            elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+            elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+        }
+
+        function closeDragElement() {
+            // stop moving when mouse button is released:
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+    }
+
+</script>
+
+<style>
+    #dragableSlicer {
+        position: absolute;
+    }
+
+    #dragableSlicerheader {
+        cursor: move;
+    }
+</style>
+
+

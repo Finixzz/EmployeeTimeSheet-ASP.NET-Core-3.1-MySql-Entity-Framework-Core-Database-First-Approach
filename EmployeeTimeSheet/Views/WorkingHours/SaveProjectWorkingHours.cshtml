@@ -1,0 +1,55 @@
+﻿@model EmployeeTimeSheet.ViewModels.Project.AddProjectWorkingHoursViewModel
+@{
+    ViewData["Title"] = "SaveProjectWorkingHours";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="message">
+    <div id="messageCard" class="card" style="margin:2% 0;">
+        <div class="card-body">
+            <h3>
+                When adding working hours, keep in mind that your supervisor has full insights in working hours you added.
+            </h3>
+        </div>
+    </div>
+</div>
+
+<div>
+    <h3 class="text-center text-white pt-5">Add working hours</h3>
+    <div class="container">
+        <div id="login-row" class="row justify-content-center align-items-center">
+            <div id="login-column" class="col-md-6">
+                <div id="login-box" class="col-md-12">
+                    <form class="form" asp-action="SaveProjectWorkingHours" asp-controller="workinghours" method="post">
+                        <h3 class="text-center text-info">Add working hours</h3>
+                        <div class="form-group">
+                            <label class="text-info">Number of hours worked</label><br>
+                            <input asp-for="HoursWorked" type="number" class="form-control" autocomplete="off" value="1">
+                            <span class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label class="text-info">Date</label><br>
+                            <input asp-for="Date" type="date" class="form-control" autocomplete="off">
+                            <span class="text-danger"></span>
+                        </div>
+                        <button type="submit" class="btn btn-info btn-md">Add</button>
+                        <a asp-action="project" asp-controller="workinghours" asp-route-id="@Model.ProjectId" class="btn btn-secondary btn-md">Back</a>
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <input type="hidden" asp-for="ProjectId" value="@Model.ProjectId" />
+                        <input type="hidden" asp-for="UserId" value="@Model.UserId" />
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    @await Html.PartialAsync("_ValidationScriptsPartial.cshtml");
+}
+
+
+
+
+
+

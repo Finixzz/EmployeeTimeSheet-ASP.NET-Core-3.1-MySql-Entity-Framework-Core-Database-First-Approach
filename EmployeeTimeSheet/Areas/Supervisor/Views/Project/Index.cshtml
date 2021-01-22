@@ -1,0 +1,86 @@
+﻿
+@model List<DAL.Models.Project>
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<a asp-area="supervisor" asp-action="createNewProject" asp-controller="project" class="btn btn-info" style="width:100%; margin:2% 0; color:white;">Create new project</a>
+
+@if (Model.Count() == 0)
+{
+    <div class="card" style="margin:2% 0;">
+        <div class="card-body">
+            <h2>Currenty there are no registred users projects, to add one click button <i>Create new project</i></h2>
+        </div>
+    </div>
+}
+else
+{
+    <table id="project-table" class="table">
+        <thead class="table-secondary">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Project name</th>
+                <th scope="col">Activity status</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Count(); i++)
+            {
+                int rowNum = i + 1;
+                <tr>
+                    <th scope="row">@rowNum</th>
+                    <td>@Model.ElementAt(i).Name</td>
+                    @if (Model.ElementAt(i).IsActive == 1)
+                    {
+                        <td>Active</td>
+                    }
+                    else
+                    {
+                        <td>Inactive</td>
+                    }
+                    <td style="display:flex; justify-content:space-between;">
+
+                        <a class="btn btn-secondary" asp-area="supervisor" asp-action="projectdetails" asp-controller="project" asp-route-id="@Model.ElementAt(i).ProjectId">Details</a>
+                        <form id="deleteProject-form" href="#">
+                            <button id="submitBtn" type="submit" class="btn btn-danger" style="color:white;">Delete</button>
+                        </form>
+                        <a class="btn btn-info" asp-area="supervisor" asp-action="createNewActivity" asp-controller="project" asp-route-id="@Model.ElementAt(i).ProjectId">Add project activity</a>
+
+                        <a class="btn btn-info"href="#">Edit</a>
+
+                    </td>
+                </tr>
+            }
+
+
+        </tbody>
+    </table>
+
+}
+
+
+
+@section scripts{
+
+
+    <script>
+        $("document").ready(function () {
+            $("#project-table").DataTable();
+
+
+        })
+
+
+
+    </script>
+
+}
+
+
+
+
+
+

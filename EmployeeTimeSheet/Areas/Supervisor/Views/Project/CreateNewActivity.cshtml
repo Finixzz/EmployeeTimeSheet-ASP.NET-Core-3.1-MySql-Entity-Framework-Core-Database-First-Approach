@@ -1,0 +1,49 @@
+﻿@model EmployeeTimeSheet.ViewModels.Project.CreateActivityViewModel
+@{
+    ViewData["Title"] = "CreateNewActivity";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div id="login">
+    <h3 class="text-center text-white pt-5">Create new project activity</h3>
+    <div class="container">
+        <div id="login-row" class="row justify-content-center align-items-center">
+            <div id="login-column" class="col-md-6">
+                <div id="login-box" class="col-md-12">
+                    <form id="login-form" class="form" asp-area="supervisor" asp-action="createnewactivity" asp-controller="project" method="post">
+                        <h3 class="text-center text-info">Create new project activity</h3>
+                        <div class="form-group">
+                            <label asp-for="Name" class="text-info">Project activity name</label><br>
+                            <input asp-for="Name" type="text" class="form-control" autocomplete="off">
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Description" class="text-info">Project activity description</label><br>
+                            <input asp-for="Description" type="text" class="form-control" autocomplete="off">
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                        <input type="hidden" asp-for="ProjectId" value="@Model.ProjectId" />
+
+
+
+                        <button type="submit" class="btn btn-info btn-md">Create project activity</button>
+                        <a asp-area="supervisor" asp-action="index" asp-controller="project" class="btn btn-secondary btn-md">Back</a>
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    @await Html.PartialAsync("_ValidationScriptsPartial.cshtml");
+}
+
+
+
+
+
+
+
