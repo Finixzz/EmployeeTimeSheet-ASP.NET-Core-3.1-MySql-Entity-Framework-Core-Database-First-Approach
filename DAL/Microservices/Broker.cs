@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 
 namespace DAL.CQRS.Brokers.ReportBroker
 {
-
-
     public class Broker : IBroker
     {
         public async Task<dynamic> sendMessage(IQuery query)

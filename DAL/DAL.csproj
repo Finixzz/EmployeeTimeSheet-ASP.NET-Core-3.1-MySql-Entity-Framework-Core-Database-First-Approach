@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="CQRS\Reports\Commands\" />
+    <Folder Include="Microservices\Reports\Commands\" />
   </ItemGroup>
 
 </Project>
