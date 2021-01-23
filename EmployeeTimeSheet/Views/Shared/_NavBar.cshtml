@@ -9,7 +9,6 @@
     var userId = userManager.GetUserId(User);
     var user = await userManager.FindByIdAsync(userId);
     var supervisor = await userManager.FindByIdAsync(user.SupervisedBy);
-
     @if (User.IsInRole("Admin"))
     {
 

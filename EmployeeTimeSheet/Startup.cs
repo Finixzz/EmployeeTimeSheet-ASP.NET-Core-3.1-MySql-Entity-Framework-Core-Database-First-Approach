@@ -62,7 +62,7 @@ namespace EmployeeTimeSheet
             services.AddScoped<IReportFacade, ReportFacade>();
 
 
-            services.AddSingleton<IBroker, Broker>();
+            services.AddScoped<IBroker, Broker>();
             services.AddTransient<IQuery, GetTotalWorkingHoursByProjectAsync>();
 
 

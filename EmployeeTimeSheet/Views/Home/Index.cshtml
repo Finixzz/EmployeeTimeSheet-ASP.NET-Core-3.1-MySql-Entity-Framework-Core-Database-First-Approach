@@ -6,7 +6,47 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-@if (signInManager.IsSignedIn(User))
+@if (!signInManager.IsSignedIn(User))
+{
+        <body>
+            <div id="login">
+                <h3 class="text-center text-white pt-5">Login form</h3>
+                <div class="container">
+                    <div id="login-row" class="row justify-content-center align-items-center">
+                        <div id="login-column" class="col-md-6">
+                            <div id="login-box" class="col-md-12">
+                                <form id="login-form" class="form" asp-action="index" asp-controller="home" method="post">
+                                    <h3 class="text-center text-info">Login</h3>
+
+
+                                    <div class="form-group">
+                                        <label asp-for="Username" class="text-info">Username</label><br>
+                                        <input asp-for="Username" type="text" class="form-control" autocomplete="off">
+                                    </div>
+                                    <div class="form-group">
+                                        <label asp-for="Password" class="text-info">Password:</label><br>
+                                        <input asp-for="Password" type="password" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="checkbox">
+                                            <label asp-for="RememberMe">
+                                                <input asp-for="RememberMe" />
+                                                @Html.DisplayNameFor(m => m.RememberMe)
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-info btn-md">Login</button>
+                                    <div asp-validation-summary="All" class="text-danger"></div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </body>
+}
+else
 {
     var userId = userManager.GetUserId(User);
     var user = await userManager.FindByIdAsync(userId);
@@ -54,18 +94,6 @@
                     colors.push(getRanHex());
                 }
 
-                createMessageCard = () => {
-                    return `
-                                                                                                                                <div id="messageCard" class="card" style="margin:2% 0;">
-                                                                                                                                <div class="card-body">
-                                                                                                                                        <h2>Analytics is not currently available. Please wait until workers append their working hours
-                                                                                                                                         for projects and activities.
-                                                                                                                                        </h2>
-                                                                                                                                    </div>
-                                                                                                                                </div>
-                                                                                                                            `;
-
-                }
 
                 $.ajax({
                     url: "/api/reports/admin/workingHoursByProjects",
@@ -236,14 +264,14 @@
 
                 createMessageCard = () => {
                     return `
-                                                                                                                                <div id="messageCard" class="card" style="margin:2% 0;">
-                                                                                                                                <div class="card-body">
-                                                                                                                                        <h2>Analytics is not currently available. Please wait until workers append their working hours
-                                                                                                                                         for projects and activities.
-                                                                                                                                        </h2>
-                                                                                                                                    </div>
-                                                                                                                                </div>
-                                                                                                                            `;
+                        <div id="messageCard" class="card" style="margin:2% 0;">
+                        <div class="card-body">
+                                <h2>Analytics is not currently available. Please wait until workers append their working hours
+                                    for projects and activities.
+                                </h2>
+                            </div>
+                        </div>
+                    `;
 
                 }
 
@@ -289,46 +317,4 @@
         }
 
     }
-}
-else
-{
-
-        <body>
-            <div id="login">
-                <h3 class="text-center text-white pt-5">Login form</h3>
-                <div class="container">
-                    <div id="login-row" class="row justify-content-center align-items-center">
-                        <div id="login-column" class="col-md-6">
-                            <div id="login-box" class="col-md-12">
-                                <form id="login-form" class="form" asp-action="index" asp-controller="home" method="post">
-                                    <h3 class="text-center text-info">Login</h3>
-
-
-                                    <div class="form-group">
-                                        <label asp-for="Username" class="text-info">Username</label><br>
-                                        <input asp-for="Username" type="text" class="form-control" autocomplete="off">
-                                    </div>
-                                    <div class="form-group">
-                                        <label asp-for="Password" class="text-info">Password:</label><br>
-                                        <input asp-for="Password" type="password" class="form-control">
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="checkbox">
-                                            <label asp-for="RememberMe">
-                                                <input asp-for="RememberMe" />
-                                                @Html.DisplayNameFor(m => m.RememberMe)
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    <button type="submit" class="btn btn-info btn-md">Login</button>
-                                    <div asp-validation-summary="All" class="text-danger"></div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </body>
-    
 }
