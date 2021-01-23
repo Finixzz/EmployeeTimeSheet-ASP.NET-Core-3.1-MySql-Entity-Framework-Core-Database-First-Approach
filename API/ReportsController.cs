@@ -132,7 +132,17 @@ namespace API
             return Ok(_reportFacade.GetWorkingHoursByOwnerParamsBySupervisor(ownerParams,supervisorId));
         }
 
+        [Route("api/[controller]/supervisor/userWorkingHoursBy")]
+        [HttpGet]
+        public IActionResult GetUserWorkingHoursByProject([FromQuery] string supervisorId, [FromQuery] UserEngagementOwnerParameters ownerParams)
+        {
 
+            if (supervisorId.Length == 0 || ownerParams.UserId.Length == 0 || ownerParams.DateFormatSelected.Length == 0)
+            {
+                return BadRequest("Please check owner parameters Project and DateFormat must be selected");
+            }
+            return Ok(_reportFacade.GetUserEngagementByOwnerParamsBySupervisor(ownerParams,supervisorId));
+        }
 
         [HttpGet]
         [Route("api/[controller]/test")]

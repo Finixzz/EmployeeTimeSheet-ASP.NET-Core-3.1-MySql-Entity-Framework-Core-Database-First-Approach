@@ -52,6 +52,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+<input id="supervisorId" type="hidden" value="@supervisorId"/>
 
 
 <script>
@@ -128,7 +129,7 @@
 
 
         $.ajax({
-            url: "/api/reports/supervisor/workingHoursByProjects",
+            url: "/api/reports/supervisor/workingHoursByProjects?SupervisorId="+$("#supervisorId").val(),
             method: 'GET',
             success: (result) => {
 
@@ -212,12 +213,13 @@
     $("#filterForm").submit(function (e) {
         e.preventDefault();
         var slicer = {
+            supervisorId:$("#supervisorId").val(),
             userId: $("#selected-user").val().length == 0 ? null : $("#selected-user").val(),
             dateFormatSelected: $("#selected-format").val()
         };
         console.log(slicer);
         if (slicer.userId != null && slicer.dateFormatSelected.length != 0) {
-            let APIurl = `/api/reports/supervisor/workingHoursBy?UserId=${slicer.userId}&DateFormatSelected=${slicer.dateFormatSelected}`;
+            let APIurl = `/api/reports/supervisor/userWorkingHoursBy?SupervisorId=${slicer.supervisorId}&UserId=${slicer.userId}&DateFormatSelected=${slicer.dateFormatSelected}`;
             $.ajax({
                 url: APIurl,
                 method: 'GET',

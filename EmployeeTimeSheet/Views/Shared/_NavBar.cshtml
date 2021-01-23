@@ -3,166 +3,233 @@
 @inject UserManager<DAL.Models.Aspnetusers> userManager;
 @inject DAL.Repositories.IUserSQLRepository userRepository;
 
-@if (signInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+
+@if (signInManager.IsSignedIn(User))
 {
-
-    <nav class="navbar navbar-expand-lg navbar-dark bg-info">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main_nav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="main_nav">
-            <ul class="navbar-nav">
-                <li class="nav-item active"> <a class="nav-link" asp-area="" asp-action="index" asp-controller="home">Home </a> </li>
-                <li class="nav-item active"> <a class="nav-link" href="#">Welcome @User.Identity.Name.ToUpper() </a> </li>
-            </ul>
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown">  Account  </a>
-                    <ul class="dropdown-menu" style="margin:0 10%;">
-                        <li><a class="dropdown-item" style="justify-content:center" asp-area="" asp-controller="account" asp-action="index"> Settings</a></li>
-                        <li>
-                            <form method="post" asp-area="" asp-controller="account" asp-action="logout" style="justify-content:center">
-                                <button class="btn btn-secondary" style="width:100%;">
-                                    Logout
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown"> Manage </a>
-                    <ul class="dropdown-menu dropdown-menu-right">
-                        <li><a class="dropdown-item" asp-area="admin" asp-action="index" asp-controller="project"> Projects</a></li>
-                        <li><a class="dropdown-item" asp-area="admin" asp-action="users" asp-controller="administration"> Users </a></li>
-                    </ul>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown"> Reports </a>
-                    <ul class="dropdown-menu dropdown-menu-right">
-                        <li><a class="dropdown-item" asp-area="admin" asp-action="ProjectActivities" asp-controller="report"> Projects/Activities</a></li>
-                        <li><a class="dropdown-item" asp-area="admin" asp-action="UserEngagment" asp-controller="report"> User engagment </a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div> <!-- navbar-collapse.// -->
-    </nav>
-
-}
-else if (signInManager.IsSignedIn(User) && User.IsInRole("Supervisor"))
-{
-    <nav class="navbar navbar-expand-lg navbar-dark bg-info">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main_nav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="main_nav">
-            <ul class="navbar-nav">
-                <li class="nav-item active"> <a class="nav-link" asp-area="" asp-action="index" asp-controller="home">Home </a> </li>
-                <li class="nav-item active"> <a class="nav-link" href="#">Welcome @User.Identity.Name.ToUpper() </a> </li>
-            </ul>
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown">  Account  </a>
-                    <ul class="dropdown-menu" style="margin:0 10%;">
-                        <li><a class="dropdown-item" style="justify-content:center" asp-area="" asp-controller="account" asp-action="index"> Settings</a></li>
-                        <li>
-                            <form method="post" asp-area="" asp-controller="account" asp-action="logout" style="justify-content:center">
-                                <button class="btn btn-secondary" style="width:100%;">
-                                    Logout
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown"> Manage </a>
-                    <ul class="dropdown-menu dropdown-menu-right">
-                        <li><a class="dropdown-item" asp-area="supervisor" asp-action="index" asp-controller="project"> Projects</a></li>
-
-
-                        <li><a class="dropdown-item" asp-area="supervisor" asp-action="users" asp-controller="administration"> Users </a></li>
-                        <li><a class="dropdown-item" asp-area="" asp-action="index" asp-controller="workinghours"> Working hours</a></li>
-                    </ul>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown"> Reports </a>
-                    <ul class="dropdown-menu dropdown-menu-right">
-                        <li><a class="dropdown-item" asp-area="supervisor" asp-action="ProjectActivities" asp-controller="report"> Projects/Activities</a></li>
-                        <li><a class="dropdown-item" asp-area="supervisor" asp-action="UserEngagment" asp-controller="report"> User engagment </a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div> <!-- navbar-collapse.// -->
-    </nav>
     var userId = userManager.GetUserId(User);
-    var user = userRepository.GetUserById(userId);
-    var supervisor = userRepository.GetUserById(user.SupervisedBy);
+    var user = await userManager.FindByIdAsync(userId);
+    var supervisor = await userManager.FindByIdAsync(user.SupervisedBy);
 
-    if (user != null)
+    @if (User.IsInRole("Admin"))
     {
-        var result = await signInManager.CheckPasswordSignInAsync(user, "User1122??", false);
-        if (result.Succeeded)
-        {
-            <div class="card" style="position:fixed; z-index:999; width:30%; background-color:#d9534f;right:0.8%;top:15%;">
-                <div class="card-body">
 
-                    <p style="color: white; font-weight:bold;">for security reasons please change password that is automatically assigned by system. To change your password go to <i>Account Settings</i> and proceed to <i>Change account password</i></p>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-info">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main_nav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="main_nav">
+                <ul class="navbar-nav">
+                    <li class="nav-item active"> <a class="nav-link" asp-area="" asp-action="index" asp-controller="home">Home </a> </li>
+                    <li class="nav-item active"> <a class="nav-link" href="#">Welcome @User.Identity.Name.ToUpper() </a> </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown">  Account  </a>
+                        <ul class="dropdown-menu" style="margin:0 10%;">
+                            <li><a class="dropdown-item" style="justify-content:center" asp-area="" asp-controller="account" asp-action="index"> Settings</a></li>
+                            <li>
+                                <form method="post" asp-area="" asp-controller="account" asp-action="logout" style="justify-content:center">
+                                    <button class="btn btn-secondary" style="width:100%;">
+                                        Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown"> Manage </a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a class="dropdown-item" asp-area="admin" asp-action="index" asp-controller="project"> Projects</a></li>
+                            <li><a class="dropdown-item" asp-area="admin" asp-action="users" asp-controller="administration"> Users </a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown"> Reports </a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a class="dropdown-item" asp-area="admin" asp-action="ProjectActivities" asp-controller="report"> Projects/Activities</a></li>
+                            <li><a class="dropdown-item" asp-area="admin" asp-action="UserEngagment" asp-controller="report"> User engagment </a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div> <!-- navbar-collapse.// -->
+        </nav>
+
+    }
+    else if (User.IsInRole("User"))
+    {
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-info">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main_nav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="main_nav">
+                <ul class="navbar-nav">
+                    <li class="nav-item active"> <a class="nav-link" asp-area="" asp-action="index" asp-controller="home">Home </a> </li>
+                    <li class="nav-item active"> <a class="nav-link" href="#">Welcome @User.Identity.Name.ToUpper() </a> </li>
+                    <li class="nav-item active"> <a class="nav-link" href="#">Supervised by @supervisor.UserName.ToUpper()  </a> </li>
+
+                </ul>
+
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown">  Account  </a>
+                        <ul class="dropdown-menu" style="margin:0 10%;">
+                            <li><a class="dropdown-item" style="justify-content:center" asp-area="" asp-controller="account" asp-action="index"> Settings</a></li>
+                            <li>
+                                <form method="post" asp-controller="account" asp-action="logout" style="justify-content:center">
+                                    <button class="btn btn-secondary" style="width:100%;">
+                                        Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown"> Manage </a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a class="dropdown-item" asp-action="index" asp-controller="workinghours"> Working hours</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div> <!-- navbar-collapse.// -->
+        </nav>
+        if (user != null)
+        {
+            var result = await signInManager.CheckPasswordSignInAsync(user, "User1122??", false);
+            if (result.Succeeded)
+            {
+                <div class="card" style="position:fixed; z-index:999; width:30%; background-color:#d9534f;right:0.8%;top:15%;">
+                    <div class="card-body">
+
+                        <p style="color: white; font-weight:bold;">For security reasons please change password that is automatically assigned by system. To change your password go to <i>Account Settings</i> and proceed to <i>Change account password</i></p>
+                    </div>
                 </div>
-            </div>
+            }
+        }
+
+    }
+    else if ((User.IsInRole("Supervisor") && user.SupervisedBy != null))
+    {
+        <nav class="navbar navbar-expand-lg navbar-dark bg-info">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main_nav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="main_nav">
+                <ul class="navbar-nav">
+                    <li class="nav-item active"> <a class="nav-link" asp-area="" asp-action="index" asp-controller="home">Home </a> </li>
+                    <li class="nav-item active"> <a class="nav-link" href="#">Welcome @User.Identity.Name.ToUpper() </a> </li>
+                    <li class="nav-item active"> <a class="nav-link" href="#">Supervised by @supervisor.UserName.ToUpper()  </a> </li>
+
+                </ul>
+
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown">  Account  </a>
+                        <ul class="dropdown-menu" style="margin:0 10%;">
+                            <li><a class="dropdown-item" style="justify-content:center" asp-area="" asp-controller="account" asp-action="index"> Settings</a></li>
+                            <li>
+                                <form method="post" asp-controller="account" asp-action="logout" style="justify-content:center">
+                                    <button class="btn btn-secondary" style="width:100%;">
+                                        Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown"> Manage </a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a class="dropdown-item" asp-area="supervisor" asp-action="index" asp-controller="project"> Projects</a></li>
+
+
+                            <li><a class="dropdown-item" asp-area="supervisor" asp-action="users" asp-controller="administration"> Users </a></li>
+                            <li><a class="dropdown-item" asp-area="" asp-action="index" asp-controller="workinghours"> Working hours</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown"> Reports </a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a class="dropdown-item" asp-area="supervisor" asp-action="ProjectActivities" asp-controller="report"> Projects/Activities</a></li>
+                            <li><a class="dropdown-item" asp-area="supervisor" asp-action="UserEngagment" asp-controller="report"> User engagment </a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div> <!-- navbar-collapse.// -->
+        </nav>
+        if (user != null)
+        {
+            var result = await signInManager.CheckPasswordSignInAsync(user, "User1122??", false);
+            if (result.Succeeded)
+            {
+                <div class="card" style="position:fixed; z-index:999; width:30%; background-color:#d9534f;right:0.8%;top:15%;">
+                    <div class="card-body">
+
+                        <p style="color: white; font-weight:bold;">For security reasons please change password that is automatically assigned by system. To change your password go to <i>Account Settings</i> and proceed to <i>Change account password</i></p>
+                    </div>
+                </div>
+            }
         }
     }
-}
-else if (signInManager.IsSignedIn(User) && User.IsInRole("User"))
-{
-    var userId = userManager.GetUserId(User);
 
-    var user = userRepository.GetUserById(userId);
-    var projectSupervisor = userRepository.GetUserById(user.SupervisedBy);
-    <nav class="navbar navbar-expand-lg navbar-dark bg-info">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main_nav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="main_nav">
-            <ul class="navbar-nav">
-                <li class="nav-item active"> <a class="nav-link" asp-area="" asp-action="index" asp-controller="home">Home </a> </li>
-                <li class="nav-item active"> <a class="nav-link" href="#">Welcome @User.Identity.Name.ToUpper() </a> </li>
-                <li class="nav-item active"> <a class="nav-link" href="#">Supervised by @projectSupervisor.UserName.ToUpper()  </a> </li>
-
-            </ul>
-
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown">  Account  </a>
-                    <ul class="dropdown-menu" style="margin:0 10%;">
-                        <li><a class="dropdown-item" style="justify-content:center" asp-area="" asp-controller="account" asp-action="index"> Settings</a></li>
-                        <li>
-                            <form method="post" asp-controller="account" asp-action="logout" style="justify-content:center">
-                                <button class="btn btn-secondary" style="width:100%;">
-                                    Logout
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown"> Manage </a>
-                    <ul class="dropdown-menu dropdown-menu-right">
-                        <li><a class="dropdown-item" asp-action="index" asp-controller="workinghours"> Working hours</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div> <!-- navbar-collapse.// -->
-    </nav>
-    if (user != null)
+    else if (User.IsInRole("Supervisor"))
     {
-        var result = await signInManager.CheckPasswordSignInAsync(user, "User1122??", false);
-        if (result.Succeeded)
-        {
-            <div class="card" style="position:fixed; z-index:999; width:30%; background-color:#d9534f;right:0.8%;top:15%;">
-                <div class="card-body">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-info">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#main_nav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="main_nav">
+                <ul class="navbar-nav">
+                    <li class="nav-item active"> <a class="nav-link" asp-area="" asp-action="index" asp-controller="home">Home </a> </li>
+                    <li class="nav-item active"> <a class="nav-link" href="#">Welcome @User.Identity.Name.ToUpper() </a> </li>
+                </ul>
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown">  Account  </a>
+                        <ul class="dropdown-menu" style="margin:0 10%;">
+                            <li><a class="dropdown-item" style="justify-content:center" asp-area="" asp-controller="account" asp-action="index"> Settings</a></li>
+                            <li>
+                                <form method="post" asp-area="" asp-controller="account" asp-action="logout" style="justify-content:center">
+                                    <button class="btn btn-secondary" style="width:100%;">
+                                        Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown"> Manage </a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a class="dropdown-item" asp-area="supervisor" asp-action="index" asp-controller="project"> Projects</a></li>
 
-                    <p style="color: white; font-weight:bold;">For security reasons please change password that is automatically assigned by system. To change your password go to <i>Account Settings</i> and proceed to <i>Change account password</i></p>
+
+                            <li><a class="dropdown-item" asp-area="supervisor" asp-action="users" asp-controller="administration"> Users </a></li>
+                            <li><a class="dropdown-item" asp-area="" asp-action="index" asp-controller="workinghours"> Working hours</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link  dropdown-toggle" href="#" data-toggle="dropdown"> Reports </a>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a class="dropdown-item" asp-area="supervisor" asp-action="ProjectActivities" asp-controller="report"> Projects/Activities</a></li>
+                            <li><a class="dropdown-item" asp-area="supervisor" asp-action="UserEngagment" asp-controller="report"> User engagment </a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div> <!-- navbar-collapse.// -->
+        </nav>
+
+
+        if (user != null)
+        {
+            var result = await signInManager.CheckPasswordSignInAsync(user, "User1122??", false);
+            if (result.Succeeded)
+            {
+                <div class="card" style="position:fixed; z-index:999; width:30%; background-color:#d9534f;right:0.8%;top:15%;">
+                    <div class="card-body">
+
+                        <p style="color: white; font-weight:bold;">For security reasons please change password that is automatically assigned by system. To change your password go to <i>Account Settings</i> and proceed to <i>Change account password</i></p>
+                    </div>
                 </div>
-            </div>
+            }
         }
     }
 

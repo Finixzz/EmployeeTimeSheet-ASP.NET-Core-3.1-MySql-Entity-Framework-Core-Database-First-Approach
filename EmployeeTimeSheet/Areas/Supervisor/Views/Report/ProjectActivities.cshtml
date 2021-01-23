@@ -56,6 +56,7 @@
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+<input id="userId"  type="hidden" value="@user.Id"/>
 
 
 <script>
@@ -132,11 +133,11 @@
 
 
         $.ajax({
-            url: "/api/reports/supervisor/workingHoursByProjects",
+            url: "/api/reports/supervisor/workingHoursByProjects?SupervisorId="+$("#userId").val(),
             method: 'GET',
             success: (result) => {
 
-
+                console.log(result);
                 if (result.length == 0) {
                     $("#message").append(createMessageCard());
                 } else {
@@ -216,12 +217,13 @@
     $("#filterForm").submit(function (e) {
         e.preventDefault();
         var slicer = {
+            supervisorId: $("#userId").val(),
             projectId: Number.isNaN(parseInt($("#selected-project").val())) ? null : parseInt($("#selected-project").val()),
             dateFormatSelected: $("#selected-format").val()
         };
 
         if (slicer.projectId != null && slicer.dateFormatSelected.length != 0) {
-            let APIurl = `/api/reports/supervisor/workingHoursBy?ProjectId=${slicer.projectId}&DateFormatSelected=${slicer.dateFormatSelected}`;
+            let APIurl = `/api/reports/supervisor/workingHoursBy?SupervisorId=${slicer.supervisorId}&ProjectId=${slicer.projectId}&DateFormatSelected=${slicer.dateFormatSelected}`;
             $.ajax({
                 url: APIurl,
                 method: 'GET',
