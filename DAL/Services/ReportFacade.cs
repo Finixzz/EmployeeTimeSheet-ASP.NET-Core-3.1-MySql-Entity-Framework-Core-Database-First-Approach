@@ -74,9 +74,7 @@ namespace DAL.Services
 
         public class ReportModelHelper
         {
-            public int ProjectId { get; set; }
 
-            public string Name { get; set; }
 
             public int WeekNumber { get; set; }
 
@@ -163,8 +161,6 @@ namespace DAL.Services
 
                     ReportModelHelper model = new ReportModelHelper()
                     {
-                        ProjectId = queryResult.ElementAt(i).ProjectId,
-                        Name = queryResult.ElementAt(i).Name,
                         WeekNumber = queryResult.ElementAt(i).WeekNumber,
                         Year = queryResult.ElementAt(i).Year,
                         Month = queryResult.ElementAt(i).Month,
@@ -198,12 +194,10 @@ namespace DAL.Services
                                on p.ProjectId equals pi.ProjectId into q1
                             from pi in q1.DefaultIfEmpty()
                             where  pi.UserId==ownerParams.UserId
-                            group new { pi.UserId, p.ProjectId, p.Name, pi.HoursWorked, pi.Date } by new { pi.UserId, p.ProjectId, p.Name, pi.Date } into q
+                            group new { pi.UserId, pi.Date, pi.HoursWorked } by new { pi.UserId, pi.Date } into q
                             select new
                             {
                                 UserId=q.Key.UserId,
-                                ProjectId = q.Key.ProjectId,
-                                Name = q.Key.Name,
                                 Date = q.Key.Date,
                                 Day = q.Key.Date.Day,
                                 q.Key.Date.Month,
@@ -211,7 +205,7 @@ namespace DAL.Services
                                 ProjectWorkingHours = q.Sum(c => c.HoursWorked)
                             };
 
-                return query.OrderBy(c => c.Month).ThenBy(c => c.Day).ToList();
+                return query.OrderBy(c => c.Year).ThenBy(c=>c.Month).ThenBy(c => c.Day).ToList();
             }
             else if (ownerParams.DateFormatSelected == "mm")
             {
@@ -220,17 +214,15 @@ namespace DAL.Services
                                on p.ProjectId equals pi.ProjectId into q1
                             from pi in q1.DefaultIfEmpty()
                             where pi.UserId == ownerParams.UserId
-                            group new { pi.UserId, p.ProjectId, p.Name, pi.HoursWorked, pi.Date } by new { pi.UserId,p.ProjectId, p.Name, pi.Date.Month, pi.Date.Year } into q
+                            group new { pi.UserId, pi.Date, pi.HoursWorked } by new { pi.UserId, pi.Date.Month, pi.Date.Year } into q
                             select new
                             {
                                 UserId=q.Key.UserId,
-                                ProjectId = q.Key.ProjectId,
-                                Name = q.Key.Name,
                                 q.Key.Month,
                                 q.Key.Year,
                                 ProjectWorkingHours = q.Sum(c => c.HoursWorked)
                             };
-                return query.OrderBy(c => c.Month).ToList();
+                return query.OrderBy(c => c.Year).ThenBy(c => c.Month).ToList();
 
             }
             else if (ownerParams.DateFormatSelected == "ww")
@@ -241,12 +233,10 @@ namespace DAL.Services
                                on p.ProjectId equals pi.ProjectId into q1
                             from pi in q1.DefaultIfEmpty()
                             where pi.UserId==ownerParams.UserId
-                            group new { pi.UserId, p.ProjectId, p.Name, pi.HoursWorked, pi.Date } by new { pi.UserId, p.ProjectId, p.Name, pi.Date, pi.Date.Month, pi.Date.Year } into q
+                            group new { pi.UserId,pi.HoursWorked, pi.Date } by new { pi.UserId, pi.Date, pi.Date.Month, pi.Date.Year } into q
                             select new
                             {
                                 UserId=q.Key.UserId,
-                                ProjectId = q.Key.ProjectId,
-                                Name = q.Key.Name,
                                 WeekNumber = ReportFacade.GetWeekNumberOfMonth(q.Key.Date),
                                 q.Key.Month,
                                 q.Key.Year,
@@ -259,14 +249,10 @@ namespace DAL.Services
 
                 for (int i = 0; i < queryResult.Count(); i++)
                 {
-                    int projectId = queryResult.ElementAt(i).ProjectId;
                     int weekNumber = queryResult.ElementAt(i).WeekNumber;
-                    int monthNumber = queryResult.ElementAt(i).WeekNumber;
 
                     ReportModelHelper model = new ReportModelHelper()
                     {
-                        ProjectId = queryResult.ElementAt(i).ProjectId,
-                        Name = queryResult.ElementAt(i).Name,
                         WeekNumber = queryResult.ElementAt(i).WeekNumber,
                         Year = queryResult.ElementAt(i).Year,
                         Month = queryResult.ElementAt(i).Month,
@@ -396,14 +382,10 @@ namespace DAL.Services
 
                 for (int i = 0; i < queryResult.Count(); i++)
                 {
-                    int projectId = queryResult.ElementAt(i).ProjectId;
                     int weekNumber = queryResult.ElementAt(i).WeekNumber;
-                    int monthNumber = queryResult.ElementAt(i).WeekNumber;
 
                     ReportModelHelper model = new ReportModelHelper()
                     {
-                        ProjectId = queryResult.ElementAt(i).ProjectId,
-                        Name = queryResult.ElementAt(i).Name,
                         WeekNumber = queryResult.ElementAt(i).WeekNumber,
                         Year = queryResult.ElementAt(i).Year,
                         Month = queryResult.ElementAt(i).Month,
@@ -437,12 +419,10 @@ namespace DAL.Services
                                on p.ProjectId equals pi.ProjectId into q1
                             from pi in q1.DefaultIfEmpty()
                             where pi.UserId == ownerParams.UserId && p.AssignedByUserId == supervisorId
-                            group new { pi.UserId, p.ProjectId, p.Name, pi.HoursWorked, pi.Date } by new { pi.UserId, p.ProjectId, p.Name, pi.Date } into q
+                            group new { pi.UserId, pi.HoursWorked, pi.Date } by new { pi.UserId, pi.Date } into q
                             select new
                             {
                                 UserId = q.Key.UserId,
-                                ProjectId = q.Key.ProjectId,
-                                Name = q.Key.Name,
                                 Date = q.Key.Date,
                                 Day = q.Key.Date.Day,
                                 q.Key.Date.Month,
@@ -450,7 +430,9 @@ namespace DAL.Services
                                 ProjectWorkingHours = q.Sum(c => c.HoursWorked)
                             };
 
-                return query.OrderBy(c => c.Month).ThenBy(c => c.Day).ToList();
+
+
+                return query.OrderBy(c => c.Year).ThenBy(c => c.Month).ThenBy(c => c.Day).ToList();
             }
             else if (ownerParams.DateFormatSelected == "mm")
             {
@@ -459,17 +441,15 @@ namespace DAL.Services
                                on p.ProjectId equals pi.ProjectId into q1
                             from pi in q1.DefaultIfEmpty()
                             where pi.UserId == ownerParams.UserId && p.AssignedByUserId == supervisorId
-                            group new { pi.UserId, p.ProjectId, p.Name, pi.HoursWorked, pi.Date } by new { pi.UserId, p.ProjectId, p.Name, pi.Date.Month, pi.Date.Year } into q
+                            group new { pi.UserId, pi.HoursWorked, pi.Date } by new { pi.UserId, pi.Date.Month, pi.Date.Year } into q
                             select new
                             {
                                 UserId = q.Key.UserId,
-                                ProjectId = q.Key.ProjectId,
-                                Name = q.Key.Name,
                                 q.Key.Month,
                                 q.Key.Year,
                                 ProjectWorkingHours = q.Sum(c => c.HoursWorked)
                             };
-                return query.OrderBy(c => c.Month).ToList();
+                return query.OrderBy(c => c.Year).ThenBy(c => c.Month).ToList();
 
             }
             else if (ownerParams.DateFormatSelected == "ww")
@@ -480,12 +460,10 @@ namespace DAL.Services
                                on p.ProjectId equals pi.ProjectId into q1
                             from pi in q1.DefaultIfEmpty()
                             where pi.UserId == ownerParams.UserId && p.AssignedByUserId==supervisorId
-                            group new { pi.UserId, p.ProjectId, p.Name, pi.HoursWorked, pi.Date } by new { pi.UserId, p.ProjectId, p.Name, pi.Date, pi.Date.Month, pi.Date.Year } into q
+                            group new { pi.UserId, pi.HoursWorked, pi.Date } by new { pi.UserId, p.ProjectId, p.Name, pi.Date, pi.Date.Month, pi.Date.Year } into q
                             select new
                             {
                                 UserId = q.Key.UserId,
-                                ProjectId = q.Key.ProjectId,
-                                Name = q.Key.Name,
                                 WeekNumber = ReportFacade.GetWeekNumberOfMonth(q.Key.Date),
                                 q.Key.Month,
                                 q.Key.Year,
@@ -498,14 +476,11 @@ namespace DAL.Services
 
                 for (int i = 0; i < queryResult.Count(); i++)
                 {
-                    int projectId = queryResult.ElementAt(i).ProjectId;
                     int weekNumber = queryResult.ElementAt(i).WeekNumber;
                     int monthNumber = queryResult.ElementAt(i).WeekNumber;
 
                     ReportModelHelper model = new ReportModelHelper()
                     {
-                        ProjectId = queryResult.ElementAt(i).ProjectId,
-                        Name = queryResult.ElementAt(i).Name,
                         WeekNumber = queryResult.ElementAt(i).WeekNumber,
                         Year = queryResult.ElementAt(i).Year,
                         Month = queryResult.ElementAt(i).Month,

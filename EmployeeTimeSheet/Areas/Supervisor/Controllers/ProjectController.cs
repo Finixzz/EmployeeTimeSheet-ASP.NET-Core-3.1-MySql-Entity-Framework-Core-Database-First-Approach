@@ -2,6 +2,7 @@
 using DAL.Models;
 using DAL.Repositories;
 using EmployeeTimeSheet.ViewModels.Project;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,6 +13,8 @@ using System.Threading.Tasks;
 namespace EmployeeTimeSheet.Areas.Supervisor.Controllers
 {
     [Area("Supervisor")]
+    [Authorize(Roles = "Supervisor")]
+
     public class ProjectController : Controller
     {
         private IProjectSQLRepository _projectSQLRepository;

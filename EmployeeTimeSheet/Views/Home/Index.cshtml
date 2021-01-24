@@ -94,6 +94,18 @@ else
                     colors.push(getRanHex());
                 }
 
+                createMessageCard = () => {
+                    return `
+                        <div id="messageCard" class="card" style="margin:2% 0;">
+                        <div class="card-body">
+                                <h2>Analytics is not currently available. Please wait until workers append their working hours
+                                    for projects and activities.
+                                </h2>
+                            </div>
+                        </div>
+                    `;
+
+                }
 
                 $.ajax({
                     url: "/api/reports/admin/workingHoursByProjects",

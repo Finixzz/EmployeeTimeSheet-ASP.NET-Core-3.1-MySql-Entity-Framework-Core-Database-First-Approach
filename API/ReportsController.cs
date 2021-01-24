@@ -5,6 +5,7 @@ using DAL.CQRS.Reports.Queries;
 using DAL.Helpers;
 using DAL.Models;
 using DAL.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
